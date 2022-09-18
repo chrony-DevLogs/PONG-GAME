@@ -67,6 +67,7 @@ int main(void) {
 
 	InitWindow(800, 600,"PONG");
 
+	InitAudioDevice();
 
 	//setting Up our ball attributes 
 
@@ -94,6 +95,10 @@ int main(void) {
 
 	Paddle paddleP1 = Paddle(&paddleXp1, &paddleYp1, &paddleWidth, &paddleHeight,&paddleSpeed);
 	Paddle paddleP2 = Paddle(&paddleXp2, &paddleYp2, &paddleWidth, &paddleHeight,&paddleSpeed);
+
+	Sound hit = LoadSound("sfx/Hit.wav");
+	Sound explosion = LoadSound("sfx/explosion.wav");
+
 
 	while (!WindowShouldClose())
 	{
@@ -156,13 +161,14 @@ int main(void) {
 			if ((myBall.ballY <= paddleP1.paddleY + paddleP1.paddleHeight) && (myBall.ballY >= paddleP1.paddleY) && (myBall.ballX <= paddleP1.paddleX + paddleWidth)) {
 				myBall.ballSpeedX *= -1.0f;
 				myBall.ballSpeedY = (myBall.ballY - paddleP1.paddleY) / (paddleHeight / 2) * ballSpeedY;
+				PlaySound(hit);
 			}
 
 
 
 			if ((myBall.ballY <= paddleP2.paddleY + paddleP1.paddleHeight) && (myBall.ballY >= paddleP2.paddleY) && (myBall.ballX >= paddleP2.paddleX)) {
 				myBall.ballSpeedX *= -1.0f;
-
+				PlaySound(hit);
 			}
 
 
@@ -173,15 +179,18 @@ int main(void) {
 			if (myBall.ballX < 0) {
 				reset(&myBall.ballX, &myBall.ballY, &ballX, &ballY);
 				increaseScore(&paddleP2.score, &paddleP2.scoreT);
+				PlaySound(explosion);
 			}
 			if (myBall.ballX > GetScreenWidth()) {
 				reset(&myBall.ballX, &myBall.ballY, &ballX,&ballY);
 				increaseScore(&paddleP1.score, &paddleP1.scoreT);
-
+				PlaySound(explosion);
 			}
 
 		EndDrawing();
 	}
+
+	CloseAudioDevice();
 
 	CloseWindow();
 
@@ -192,7 +201,6 @@ void reset(float* ballX,float* ballY , float* newBallX,float* newBallY ) {
 
 	*ballX = *newBallX;
 	*ballY = *newBallY;
-	
 }
 
 void increaseScore(int* score, std::string* scoreT) {
